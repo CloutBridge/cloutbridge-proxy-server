@@ -8,5 +8,8 @@
     "server": "nodemon -L cloutBridgeProxyServer"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^2.0.12"
+  }
 }
