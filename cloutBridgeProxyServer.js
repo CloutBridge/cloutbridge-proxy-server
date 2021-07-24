@@ -57,7 +57,6 @@ app.get('/api/createTransaction', async (req, res) =>{
         console.log(e + "Create transaction request error.");
     }
     
-    
     res.send(JSON.stringify({transactionHex: result}));
 });
 
@@ -114,7 +113,6 @@ app.get('/api/sendTransaction', async (req, res) =>{
     }catch(e){
         console.log("transaction Error prob repeat.");
     }
-
 })
 
 app.get('/api/exchangePrice', async (req, res) =>{
@@ -132,6 +130,10 @@ app.get('/api/exchangePrice', async (req, res) =>{
     res.send(JSON.stringify(exchangePrice));
 
 })
+
+app.get("/", (req, res) => {
+    res.send(`Welcome to my server! This is the homepage on port 3001`);
+  });
 
 app.listen(port, ()=>{
     console.log(`Clout Bridge Proxy listening at http://localhost:${port}`)
