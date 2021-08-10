@@ -63,7 +63,7 @@ app.get('/api/createTransaction', async (req, res) =>{
 
 app.get('/api/getBalance', async (req, res) =>{
 
-    var balance = 0;
+    
 
     //console.log("getBalance");
     try{
@@ -76,17 +76,21 @@ app.get('/api/getBalance', async (req, res) =>{
             }
         }
 
-         balance = await axiosInstance.request(options).then((response)=>{
+        var balance = 0;
+
+        balance = await axiosInstance.request(options).then((response)=>{
             return response.data.ConfirmedBalanceNanos + response.data.UnconfirmedBalanceNanos;
         })
+
+        console.log(`${req.query.sender} Balance: ${balance}`);
+
+        res.send(JSON.stringify({balance: balance}));
     }
     catch(error){
         console.log(error);
     }
 
-    console.log(`${req.query.sender} Balance: ${balance}`);
-
-    res.send(JSON.stringify({balance: balance}));
+    
 })
 
 
@@ -122,13 +126,32 @@ app.get('/api/exchangePrice', async (req, res) =>{
         timeout: 10000
     }
 
-    var exchangePrice = await axiosInstance.request(priceOptions).then((result)=>{
-        //console.log(result.data);
-        return result.data;
-    })
+    try{
+        var exchangePrice = await axiosInstance.request(priceOptions).then((result)=>{
+            //console.log(result.data);
+            return result.data;
+        })
 
-    res.send(JSON.stringify(exchangePrice));
+        res.send(JSON.stringify(exchangePrice));
+    }
+    catch(err){
+        console.log(err)
+    }
 
+})
+
+app.get('/api/getUser', async (req, res) => {
+
+    console.log(res.query.user);
+
+    var userOptions={
+         url: 'https://api.bitclout.com/api/v0/get-users-stateless',
+         method: 'POST',
+         data:{
+            PublicKeysBase58Check: req.query.user,
+            SkipForLeaderboard: false 
+         } 
+    } 
 })
 
 app.get("/", (req, res) => {
