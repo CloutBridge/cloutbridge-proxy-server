@@ -5,7 +5,10 @@ const axios = require('axios');
 var cors = require('cors');
 
 const app = express();
-app.use(cors());
+
+app.use(cors({
+    origin: '*'
+}));
 
 const port = 3001;
 
@@ -140,6 +143,7 @@ app.get('/api/exchangePrice', async (req, res) =>{
 
 })
 
+/*
 app.get('/api/getUser', async (req, res) => {
 
     console.log(res.query.user);
@@ -152,7 +156,7 @@ app.get('/api/getUser', async (req, res) => {
             SkipForLeaderboard: false 
          } 
     } 
-})
+})*/
 
 app.get("/", (req, res) => {
     res.send(`Welcome to my server! This is the homepage on port 3001`);
