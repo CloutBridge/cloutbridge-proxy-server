@@ -14,6 +14,28 @@ app.use(function(req, res, next) {
     next();
   });
 
+  /*
+  var allowedOrigins = ['http://localhost:3000',
+                      'http:cloutbridge.net'];
+app.use(cors({
+  origin: function(origin, callback){
+    // allow requests with no origin 
+    // (like mobile apps or curl requests)
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){
+      var msg = 'The CORS policy for this site does not ' +
+                'allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));*/
+
+/*
+res.setHeader("Access-Control-Allow-Origin", 'http://myDomain:8080');
+res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS,PUT,DELETE');
+res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Accept');*/
+
 const port = 3001;
 
 var axiosInstance = axios.create({
