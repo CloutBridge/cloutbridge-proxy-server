@@ -6,9 +6,13 @@ var cors = require('cors');
 
 const app = express();
 
-app.use(cors({
-    origin: '*'
-}));
+//app.use(cors);
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
 
 const port = 3001;
 
@@ -65,8 +69,6 @@ app.get('/api/createTransaction', async (req, res) =>{
 
 
 app.get('/api/getBalance', async (req, res) =>{
-
-    
 
     //console.log("getBalance");
     try{
