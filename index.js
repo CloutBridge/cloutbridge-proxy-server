@@ -6,13 +6,14 @@ var cors = require('cors');
 
 const app = express();
 
-//app.use(cors);
+app.use(cors());
 
+/*
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
-  });
+  });*/
 
   /*
   var allowedOrigins = ['http://localhost:3000',
@@ -158,6 +159,7 @@ app.get('/api/exchangePrice', async (req, res) =>{
             //console.log(result.data);
             return result.data;
         })
+        res.setHeader('Content-Type', 'application/json');
 
         res.send(JSON.stringify(exchangePrice));
     }
@@ -181,9 +183,22 @@ app.get('/api/getUser', async (req, res) => {
          } 
     } 
 })*/
+// change
+app.get('/api/greeting', async (req, res) => {
+
+    await axios.get("https://api.bitclout.com/api/v1", {headers:{'apiKey': "092dae962ea44b02809a4c74408b42a1", 'content-type': "application/json"}})
+            .then(function(result){
+                console.log(result);
+            })
+  
+    const name = req.query.name || 'World';
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({ greeting: `Hello ${name}!` }));
+  });
 
 app.get("/", (req, res) => {
-    res.send(`Welcome to my server! This is the homepage on port 3001`);
+    res.setHeader('Content-Type', 'application/json');
+    res.send({greet: `Welcome to my server! This is the homepage on port 3001`});
   });
 
 app.listen(port, ()=>{
