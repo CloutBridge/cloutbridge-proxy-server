@@ -147,7 +147,7 @@ app.get('/api/sendTransaction', async (req, res) =>{
     }catch(e){
         console.log("transaction Error prob repeat.");
     }
-})
+});
 
 app.get('/api/exchangePrice', async (req, res) =>{
     /*
@@ -173,7 +173,7 @@ app.get('/api/exchangePrice', async (req, res) =>{
     //res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ greeting: `Hello random!` }));
 
-})
+});
 
 /*
 app.get('/api/getUser', async (req, res) => {
@@ -202,15 +202,19 @@ app.get(`/api/request`, async (req,res) =>{
             console.log(result.data);
             return result.data;
         })
+        res.setHeader('Content-Type', 'application/json');
+
+        res.send(JSON.stringify(exchangePrice));
     }
     catch(err){
         console.log(err)
     }
 
+    /*
     const name = req.query.name || 'World';
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ greeting: `Hello ${name}!` }));
-})
+    res.send(JSON.stringify({ greeting: `Hello ${name}!` }));*/
+});
 
 
 app.get('/api/greeting', async (req, res) => {
