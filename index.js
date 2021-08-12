@@ -189,6 +189,14 @@ app.get('/api/getUser', async (req, res) => {
          } 
     } 
 })*/
+app.get(`/api/request`, async (req,res) =>{
+
+    const name = req.query.name || 'World';
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({ greeting: `Hello ${name}!` }));
+})
+
+
 app.get('/api/greeting', async (req, res) => {
 
     /*
