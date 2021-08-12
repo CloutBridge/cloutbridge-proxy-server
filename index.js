@@ -157,7 +157,7 @@ app.get('/api/exchangePrice', async (req, res) =>{
 
     try{
         var exchangePrice = await axiosInstance.request(priceOptions).then((result)=>{
-            //console.log(result.data);
+            console.log(result.data);
             return result.data;
         })
         res.setHeader('Content-Type', 'application/json');
