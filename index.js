@@ -191,10 +191,11 @@ app.get('/api/getUser', async (req, res) => {
 })*/
 app.get('/api/greeting', async (req, res) => {
 
+    /*
     await axios.get("https://api.bitclout.com/api/v1", {headers:{'apiKey': "092dae962ea44b02809a4c74408b42a1", 'content-type': "application/json"}})
             .then(function(result){
                 console.log(result);
-            })
+            })*/
   
     const name = req.query.name || 'World';
     res.setHeader('Content-Type', 'application/json');
