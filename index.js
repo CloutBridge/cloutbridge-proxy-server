@@ -148,6 +148,7 @@ app.get('/api/sendTransaction', async (req, res) =>{
 })
 
 app.get('/api/exchangePrice', async (req, res) =>{
+    /*
     var priceOptions = {
         url: 'https://api.bitclout.com/api/v0/get-exchange-rate',
         method:'GET',
@@ -165,7 +166,10 @@ app.get('/api/exchangePrice', async (req, res) =>{
     }
     catch(err){
         console.log(err)
-    }
+    }*/
+
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({ greeting: `Hello random!` }));
 
 })
 
@@ -183,7 +187,6 @@ app.get('/api/getUser', async (req, res) => {
          } 
     } 
 })*/
-// change
 app.get('/api/greeting', async (req, res) => {
 
     await axios.get("https://api.bitclout.com/api/v1", {headers:{'apiKey': "092dae962ea44b02809a4c74408b42a1", 'content-type': "application/json"}})
@@ -195,6 +198,8 @@ app.get('/api/greeting', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ greeting: `Hello ${name}!` }));
   });
+
+
 
 app.get("/", (req, res) => {
     res.setHeader('Content-Type', 'application/json');
