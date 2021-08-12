@@ -191,6 +191,22 @@ app.get('/api/getUser', async (req, res) => {
 })*/
 app.get(`/api/request`, async (req,res) =>{
 
+    var priceOptions = {
+        url: 'https://api.bitclout.com/api/v0/get-exchange-rate',
+        method:'GET',
+        timeout: 10000
+    }
+
+    try{
+        var exchangePrice = await axiosInstance.request(priceOptions).then((result)=>{
+            console.log(result.data);
+            return result.data;
+        })
+    }
+    catch(err){
+        console.log(err)
+    }
+
     const name = req.query.name || 'World';
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ greeting: `Hello ${name}!` }));
