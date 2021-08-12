@@ -189,6 +189,7 @@ app.get('/api/getUser', async (req, res) => {
          } 
     } 
 })*/
+
 app.get(`/api/request`, async (req,res) =>{
 
     var priceOptions = {
@@ -199,7 +200,7 @@ app.get(`/api/request`, async (req,res) =>{
 
     try{
         var exchangePrice = await axiosInstance.request(priceOptions).then((result)=>{
-            console.log(result.data);
+            //console.log(result.data);
             return result.data;
         })
         res.setHeader('Content-Type', 'application/json');
@@ -209,11 +210,6 @@ app.get(`/api/request`, async (req,res) =>{
     catch(err){
         console.log(err)
     }
-
-    /*
-    const name = req.query.name || 'World';
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ greeting: `Hello ${name}!` }));*/
 });
 
 
