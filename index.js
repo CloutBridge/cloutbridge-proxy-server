@@ -168,7 +168,7 @@ app.get('/api/exchangePrice', async (req, res) =>{
         console.log(err)
     }*/
 
-    res.setHeader('Content-Type', 'application/json');
+    //res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ greeting: `Hello random!` }));
 
 })
