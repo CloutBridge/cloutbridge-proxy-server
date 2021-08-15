@@ -8,8 +8,6 @@ const app = express();
 
 app.use(cors());
 
-// pull test
-
 /*
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -56,6 +54,16 @@ var devBcltPublicKey = "BC1YLit7V8XL4xdAQH3HzsXZhSCcPioe3PGw5tB8h6EXqFwrppVAWHS"
 
 //01e9111da33e662a25fe2c70c7dd78d0a88d83b6f97d55079f843080f840c8abc3010203573512f3a485eb22b87ddcdd3f754c5e27b4d6b9b2289d9bbe6ee198fe08bc5101035736fa4674860c51c92489430425467c8e5e23fa23395dd111366479fc5a63e0a1ea05020021035736fa4674860c51c92489430425467c8e5e23fa23395dd111366479fc5a63e00000
 
+// Variables to maintain CloutPrice feed
+var cloutPrice = 0;
+var cloutPriceTime = new Date();
+
+// Variable to maintain CloutBridgeBalance fee
+
+var cloutBridgeBalance = 0;
+var cloutBridgeBalanceTime = new Date();
+
+
 app.get('/api/createTransaction', async (req, res) =>{
 
     /*
@@ -84,12 +92,13 @@ app.get('/api/createTransaction', async (req, res) =>{
         })
     
         console.log(`transactionHex: ${result}`);
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({transactionHex: result}));
     }
     catch(e){
         console.log(e + "Create transaction request error.");
     }
     
-    res.send(JSON.stringify({transactionHex: result}));
 });
 
 
@@ -112,8 +121,8 @@ app.get('/api/getBalance', async (req, res) =>{
             return response.data.ConfirmedBalanceNanos + response.data.UnconfirmedBalanceNanos;
         })
 
-        console.log(`${req.query.sender} Balance: ${balance}`);
-
+        //console.log(`${req.query.sender} Balance: ${balance}`);
+        res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify({balance: balance}));
     }
     catch(error){
@@ -121,6 +130,37 @@ app.get('/api/getBalance', async (req, res) =>{
     }
 
     
+})
+
+app.get('/api/cloutBridgeBalance', async (req, res) =>{
+
+    var currentTime = new Date();
+    var elapsed = (currentTime - cloutBridgeBalanceTime) / 1000;
+
+    if(elapsed > 20){
+
+        cloutBridgeBalanceTime = currentTime;
+
+        var options ={
+            method: "POST",
+            url: 'https://api.bitclout.com/api/v1/balance',
+            timeout: 19000,
+            data:{
+                PublicKeyBase58Check: devBcltPublicKey
+            }
+        }
+
+        cloutBridgeBalance = await axiosInstance.request(options).then((response)=>{
+            return response.data.ConfirmedBalanceNanos + response.data.UnconfirmedBalanceNanos;
+        })
+
+        //console.log(`${req.query.sender} Balance: ${balance}`);
+
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({cloutBridgeBalance: cloutBridgeBalance}));
+
+    }
+
 })
 
 
@@ -141,6 +181,7 @@ app.get('/api/sendTransaction', async (req, res) =>{
             return result.data.TxnHashHex;
         })
         
+        res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify({txnHashHex:txnHashHex}))
         //console.log(transactionOptions)
 
@@ -149,31 +190,6 @@ app.get('/api/sendTransaction', async (req, res) =>{
     }
 });
 
-app.get('/api/exchangePrice', async (req, res) =>{
-    /*
-    var priceOptions = {
-        url: 'https://api.bitclout.com/api/v0/get-exchange-rate',
-        method:'GET',
-        timeout: 10000
-    }
-
-    try{
-        var exchangePrice = await axiosInstance.request(priceOptions).then((result)=>{
-            console.log(result.data);
-            return result.data;
-        })
-        res.setHeader('Content-Type', 'application/json');
-
-        res.send(JSON.stringify(exchangePrice));
-    }
-    catch(err){
-        console.log(err)
-    }*/
-
-    //res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ greeting: `Hello random!` }));
-
-});
 
 /*
 app.get('/api/getUser', async (req, res) => {
@@ -190,29 +206,47 @@ app.get('/api/getUser', async (req, res) => {
     } 
 })*/
 
-app.get(`/api/request`, async (req,res) =>{
+var priceOptions = {
+    url: 'https://api.bitclout.com/api/v0/get-exchange-rate',
+    method:'GET',
+    timeout: 10000
+}
 
-    var priceOptions = {
-        url: 'https://api.bitclout.com/api/v0/get-exchange-rate',
-        method:'GET',
-        timeout: 10000
+app.get(`/api/cloutPrice`, async (req,res) =>{
+
+    var currentTime = new Date();
+    var elapsed = (currentTime - cloutPriceTime) / 1000;
+
+    if(elapsed > 20){
+        //console.log(`Sending new clout price ${elapsed}`);
+
+        cloutPriceTime = currentTime;
+
+        try{
+            cloutPrice = await axiosInstance.request(priceOptions).then((result)=>{
+                //console.log(result.data);
+                return result.data;
+            })
+            res.setHeader('Content-Type', 'application/json');
+    
+            res.send(JSON.stringify(cloutPrice));
+        }
+        catch(err){
+            console.log(err)
+        }
+        
     }
+    else{
+        //console.log(`Sending current clout price ${elapsed}`);
 
-    try{
-        var exchangePrice = await axiosInstance.request(priceOptions).then((result)=>{
-            //console.log(result.data);
-            return result.data;
-        })
         res.setHeader('Content-Type', 'application/json');
-
-        res.send(JSON.stringify(exchangePrice));
+    
+        res.send(JSON.stringify(cloutPrice));
     }
-    catch(err){
-        console.log(err)
-    }
+    
 });
 
-
+/*
 app.get('/api/greeting', async (req, res) => {
 
     /*
@@ -220,12 +254,12 @@ app.get('/api/greeting', async (req, res) => {
             .then(function(result){
                 console.log(result);
             })*/
-  
+    /*
     const name = req.query.name || 'World';
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ greeting: `Hello ${name}!` }));
   });
-
+*/
 
 
 app.get("/", (req, res) => {
