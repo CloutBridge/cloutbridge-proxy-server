@@ -3,39 +3,12 @@ const express = require('express');
 const axios = require('axios');
 
 var cors = require('cors');
+const { response } = require('express');
 
 const app = express();
 
 app.use(cors());
 
-/*
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-  });*/
-
-  /*
-  var allowedOrigins = ['http://localhost:3000',
-                      'http:cloutbridge.net'];
-app.use(cors({
-  origin: function(origin, callback){
-    // allow requests with no origin 
-    // (like mobile apps or curl requests)
-    if(!origin) return callback(null, true);
-    if(allowedOrigins.indexOf(origin) === -1){
-      var msg = 'The CORS policy for this site does not ' +
-                'allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  }
-}));*/
-
-/*
-res.setHeader("Access-Control-Allow-Origin", 'http://myDomain:8080');
-res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS,PUT,DELETE');
-res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Accept');*/
 
 const port = 3001;
 
@@ -138,27 +111,34 @@ app.get('/api/cloutBridgeBalance', async (req, res) =>{
     var elapsed = (currentTime - cloutBridgeBalanceTime) / 1000;
 
     if(elapsed > 20){
+        try{
+            cloutBridgeBalanceTime = currentTime;
 
-        cloutBridgeBalanceTime = currentTime;
-
-        var options ={
-            method: "POST",
-            url: 'https://api.bitclout.com/api/v1/balance',
-            timeout: 19000,
-            data:{
-                PublicKeyBase58Check: devBcltPublicKey
+            var options ={
+                method: "POST",
+                url: 'https://api.bitclout.com/api/v1/balance',
+                timeout: 19000,
+                data:{
+                    PublicKeyBase58Check: devBcltPublicKey
+                }
             }
+
+            cloutBridgeBalance = await axiosInstance.request(options).then((response)=>{
+                return response.data.ConfirmedBalanceNanos + response.data.UnconfirmedBalanceNanos;
+            })
+
+            //console.log(`${devBcltPublicKey} Balance: ${cloutBridgeBalance}`);
+
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify({cloutBridgeBalance: cloutBridgeBalance}));
+
+        }catch(err){
+            console.log("Clout Bridge Balance Error",err);
         }
-
-        cloutBridgeBalance = await axiosInstance.request(options).then((response)=>{
-            return response.data.ConfirmedBalanceNanos + response.data.UnconfirmedBalanceNanos;
-        })
-
-        //console.log(`${req.query.sender} Balance: ${balance}`);
-
+    }
+    else{
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify({cloutBridgeBalance: cloutBridgeBalance}));
-
     }
 
 })
@@ -177,7 +157,7 @@ app.get('/api/sendTransaction', async (req, res) =>{
         }
 
         var txnHashHex = await axiosInstance.request(transactionOptions).then((result)=>{
-            console.log(result.data.TxnHashHex);
+            //console.log(result.data);
             return result.data.TxnHashHex;
         })
         
@@ -191,20 +171,41 @@ app.get('/api/sendTransaction', async (req, res) =>{
 });
 
 
-/*
+
 app.get('/api/getUser', async (req, res) => {
 
-    console.log(res.query.user);
+    try{
+        //console.log(req.query.sender);
 
-    var userOptions={
-         url: 'https://api.bitclout.com/api/v0/get-users-stateless',
-         method: 'POST',
-         data:{
-            PublicKeysBase58Check: req.query.user,
-            SkipForLeaderboard: false 
-         } 
-    } 
-})*/
+        
+        var userOptions={
+            url: 'https://api.bitclout.com/api/v0/get-users-stateless',
+            method: 'POST',
+            timeout: 10000,
+            data:{
+                PublicKeysBase58Check: [req.query.sender],
+                SkipForLeaderboard: false 
+            } 
+        } 
+        
+        await axiosInstance.request(userOptions).then((result)=>{
+            if(result.data.UserList[0].ProfileEntryResponse !== null){
+                //console.log(result.data.UserList[0].ProfileEntryResponse.Username);
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify({username: result.data.UserList[0].ProfileEntryResponse.Username}));
+                return;
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify({username: req.query.sender}));
+        });
+    
+        //
+    }
+    catch(err){
+        console.log("get user error", err);
+    }
+    
+});
 
 var priceOptions = {
     url: 'https://api.bitclout.com/api/v0/get-exchange-rate',
@@ -246,20 +247,6 @@ app.get(`/api/cloutPrice`, async (req,res) =>{
     
 });
 
-/*
-app.get('/api/greeting', async (req, res) => {
-
-    /*
-    await axios.get("https://api.bitclout.com/api/v1", {headers:{'apiKey': "092dae962ea44b02809a4c74408b42a1", 'content-type': "application/json"}})
-            .then(function(result){
-                console.log(result);
-            })*/
-    /*
-    const name = req.query.name || 'World';
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ greeting: `Hello ${name}!` }));
-  });
-*/
 
 
 app.get("/", (req, res) => {
